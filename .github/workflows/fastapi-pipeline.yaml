@@ -14,10 +14,13 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Create pip cache folder
+        run: mkdir -p .pip-cache
+
       - name: Cache Python Packages
         uses: actions/cache@v4
         with:
-          path: ~/.cache/pip
+          path: .pip-cache
           key: python-package-${{ github.job }}-${{ hashFiles('app/dependencies.txt') }}
           restore-keys: |
             python-package-
@@ -25,8 +28,8 @@ jobs:
       - name: Install Dependencies
         working-directory: app
         run: |
-          pip install -r dependencies.txt
-          pip install pytest starlette
+          pip install --cache-dir ../.pip-cache -r dependencies.txt
+          pip install --cache-dir ../.pip-cache pytest starlette
 
       - name: Run Unit Tests
         working-directory: app
@@ -48,10 +51,13 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Create pip cache folder
+        run: mkdir -p .pip-cache
+
       - name: Cache Python Packages
         uses: actions/cache@v4
         with:
-          path: ~/.cache/pip
+          path: .pip-cache
           key: python-package-${{ github.job }}-${{ hashFiles('app/dependencies.txt') }}
           restore-keys: |
             python-package-
@@ -59,8 +65,8 @@ jobs:
       - name: Install Dependencies
         working-directory: app
         run: |
-          pip install -r dependencies.txt
-          pip install pytest pytest-cov starlette
+          pip install --cache-dir ../.pip-cache -r dependencies.txt
+          pip install --cache-dir ../.pip-cache pytest pytest-cov starlette
 
       - name: Run Code Coverage
         working-directory: app
