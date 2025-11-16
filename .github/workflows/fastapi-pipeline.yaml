@@ -5,8 +5,8 @@ on:
 
 jobs:
 
-  unit-testing:
-    name: unit-testing
+  Unit-Testing:
+    name: Unit-Testing
     runs-on: ubuntu-latest
     container:
       image: python:3.10-slim
@@ -41,9 +41,9 @@ jobs:
           name: unit-test-reportfile
           path: app/unit-test-reportfile.xml
 
-  code-coverage:
-    name: code-coverage
-    needs: [unit-testing]
+  Code-Coverage:
+    name: Code-Coverage
+    needs: [Unit-Testing]
     runs-on: ubuntu-latest
     container:
       image: python:3.10-slim
@@ -82,7 +82,7 @@ jobs:
 
   Containerization:
     name: Containerization
-    needs: [unit-testing, code-coverage]
+    needs: [Unit-Testing, Code-Coverage]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -122,6 +122,44 @@ jobs:
             ${{ vars.DOCKERHUB_USERNAME }}/fastapi:${{ github.sha }}
             ${{ vars.DOCKERHUB_USERNAME }}/fastapi:latest
 
+  Deploy-Infra:
+    name: Deploy-Infra
+    needs: [Containerization]
+    permissions:
+     id-token: write #required for github-aws oidc authentication
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v5.1.0
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      
+      - name: Setup Hashicorp Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.1.7"
+
+      - name: Terraform Init
+        working-directory: ./terraform/global
+        run: |
+          terraform init
+
+      - name: Terraform Plan
+        working-directory: ./terraform/global
+        run: |
+          terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        working-directory: ./terraform/global
+        run: |
+          terraform apply -auto-approve tfplan
+
+      
+    
 
 
 
