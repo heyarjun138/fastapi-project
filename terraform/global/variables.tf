@@ -34,6 +34,3 @@ variable "project" {
   description = "Project name"
 }
 
-variable "s3_remote_backend" {
-  type = string
-}
