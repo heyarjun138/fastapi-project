@@ -151,7 +151,7 @@ jobs:
       - name: Terraform Plan
         working-directory: ./terraform/global
         run: |
-          terraform force-unlock  9438d95e-9456-73cf-b4f0-620b123f1bf9
+          terraform force-unlock  9438d95e-9456-73cf-b4f0-620b123f1bf9 -auto-approve
           terraform plan -out=tfplan
 
       - name: Terraform Apply
