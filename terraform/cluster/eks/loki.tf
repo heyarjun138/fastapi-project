@@ -1,13 +1,13 @@
 # Creating namespace
-/*
+
 resource "kubernetes_namespace" "monitoring" {
   metadata {
     name = "monitoring"
   }
-}*/
+}
 
 # Deploying Loki Helm Chart
-/*
+
 module "loki-stack" {
   source  = "terraform-iaac/loki-stack/kubernetes"
   version = "1.3.1"
@@ -30,7 +30,7 @@ module "loki-stack" {
   }
 
 
-  depends_on = [null_resource.wait_for_eks_api, aws_s3_bucket.loki_s3, aws_iam_role.loki_irsa_role]#, kubernetes_namespace.monitoring]
+  depends_on = [null_resource.wait_for_eks_api, aws_s3_bucket.loki_s3, aws_iam_role.loki_irsa_role, kubernetes_namespace.monitoring]
 }
 
 /*
@@ -122,7 +122,7 @@ resource "null_resource" "restart_promtail" {
 
 
 # Creating ConfigMap for Loki to be picked up as datasource by Grafana
-/*
+
 resource "kubernetes_config_map" "grafana_loki_datasource" {
   metadata {
     name      = var.loki_configmap_name
@@ -149,5 +149,5 @@ resource "kubernetes_config_map" "grafana_loki_datasource" {
         EOF      
   }
   depends_on = [null_resource.wait_for_eks_api, kubernetes_namespace.monitoring, module.loki-stack]
-}*/
+}
 
