@@ -162,7 +162,8 @@ jobs:
         working-directory: ./terraform/global
         run: |
           terraform init
-          
+          terraform plan -out=tfplan
+          terraform apply -auto-approve tfplan
 
       - name: Terraform Init, Plan & Apply EKS Resources
         working-directory: ./terraform/cluster/eks
