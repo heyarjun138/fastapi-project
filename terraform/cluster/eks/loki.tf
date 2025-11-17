@@ -7,7 +7,7 @@ resource "kubernetes_namespace" "monitoring" {
 }*/
 
 # Deploying Loki Helm Chart
-
+/*
 module "loki-stack" {
   source  = "terraform-iaac/loki-stack/kubernetes"
   version = "1.3.1"
