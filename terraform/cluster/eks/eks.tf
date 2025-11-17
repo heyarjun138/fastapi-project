@@ -1,6 +1,6 @@
-##############################
-# EKS CLUSTER MODULE (v21.4.0)
-##############################
+#############################################
+# FINAL EKS CLUSTER MODULE (v21.4.0)
+#############################################
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
@@ -12,7 +12,7 @@ module "eks" {
   enable_irsa = true
 
   ###########################################
-  # EKS ADDONS (latest, stable & recommended)
+  # EKS ADDONS
   ###########################################
   addons = {
     coredns = {
@@ -36,35 +36,36 @@ module "eks" {
   ###########################################
   endpoint_public_access       = true
   endpoint_private_access      = true
-  endpoint_public_access_cidrs = ["0.0.0.0/0"]   # Replace with GitHub runners & your home IP
-
-  #########################################################################
-  # THIS GRANTS YOUR IDENTITY ADMIN ACCESS AUTOMATICALLY (GOOD FOR LOCAL)
-  #########################################################################
-  enable_cluster_creator_admin_permissions = true
+  endpoint_public_access_cidrs = ["0.0.0.0/0"]   # allow laptop + GitHub runners
 
   ###########################################
-  # VPC & SUBNET INPUTS
+  # REMOVE THIS WHEN USING access_entries !!!
+  ###########################################
+  # enable_cluster_creator_admin_permissions = true
+  # (We disable this to avoid overwriting access_entries)
+
+  ###########################################
+  # NETWORKING
   ###########################################
   vpc_id                   = data.terraform_remote_state.global.outputs.vpc_id
   subnet_ids               = data.terraform_remote_state.global.outputs.private_subnet_ids
   control_plane_subnet_ids = data.terraform_remote_state.global.outputs.private_subnet_ids
 
   ###########################################
-  # ACCESS ENTRIES (Kubernetes RBAC Mappings)
+  # ACCESS ENTRIES (IAM → Kubernetes RBAC)
   ###########################################
   access_entries = {
-    # ------------------------------------
-    # ADMIN ACCESS FOR YOUR IAM USER
-    # ------------------------------------
-    my_admin_user = {
+    #########################################
+    # 1. LOCAL USER (ARJUN) → ADMIN
+    #########################################
+    admin_user = {
       principal_arn     = "arn:aws:iam::677938781728:user/Arjun"
       kubernetes_groups = ["system:masters"]
       type              = "STANDARD"
 
       policy_associations = {
         admin = {
-          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+          policy_arn  = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
           access_scope = {
             type = "cluster"
           }
@@ -72,12 +73,30 @@ module "eks" {
       }
     }
 
-    # ------------------------------------
-    # NODE ACCESS (REQUIRED!)
-    # Without system:bootstrappers, nodes fail to join
-    # ------------------------------------
+    #########################################
+    # 2. GITHUB ACTIONS ROLE → ADMIN
+    #########################################
+    github_actions = {
+      principal_arn     = "arn:aws:iam::677938781728:role/github-actions-iam-role"
+      kubernetes_groups = ["system:masters"]
+      type              = "STANDARD"
+
+      policy_associations = {
+        admin = {
+          policy_arn  = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+          access_scope = {
+            type = "cluster"
+          }
+        }
+      }
+    }
+
+    #########################################
+    # 3. WORKER NODE ACCESS (REQUIRED)
+    #########################################
     node_access = {
-      principal_arn = module.eks.eks_managed_node_groups["workernode"].iam_role_arn
+      # IMPORTANT: Use dynamic role ARN, no hardcoding!
+      principal_arn = module.eks.node_iam_role_arn
 
       kubernetes_groups = [
         "system:bootstrappers",

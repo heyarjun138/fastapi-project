@@ -168,7 +168,7 @@ jobs:
       - name: Terraform Init, Plan & Apply EKS Resources
         working-directory: ./terraform/cluster/eks
         run: |
-          terraform init -upgrade
+          terraform init 
           terraform plan -out=tfplan
           terraform apply -auto-approve tfplan
 
