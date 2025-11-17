@@ -1,13 +1,19 @@
-# Terraform module to create Amazon Elastic Kubernetes
+##############################
+# EKS CLUSTER MODULE (v21.4.0)
+##############################
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "21.4.0"
+
   name               = var.cluster_name
   kubernetes_version = var.k8_version
 
   enable_irsa = true
 
+  ###########################################
+  # EKS ADDONS (latest, stable & recommended)
+  ###########################################
   addons = {
     coredns = {
       most_recent = true
@@ -24,24 +30,37 @@ module "eks" {
       most_recent    = true
     }
   }
+
+  ###########################################
+  # CLUSTER ENDPOINT ACCESS
+  ###########################################
   endpoint_public_access       = true
   endpoint_private_access      = true
-  endpoint_public_access_cidrs = ["0.0.0.0/0"]   # your github ips & home IP
+  endpoint_public_access_cidrs = ["0.0.0.0/0"]   # Replace with GitHub runners & your home IP
 
-  # Adds the current caller identity as an administrator via cluster access entry
+  #########################################################################
+  # THIS GRANTS YOUR IDENTITY ADMIN ACCESS AUTOMATICALLY (GOOD FOR LOCAL)
+  #########################################################################
   enable_cluster_creator_admin_permissions = true
 
-
+  ###########################################
+  # VPC & SUBNET INPUTS
+  ###########################################
   vpc_id                   = data.terraform_remote_state.global.outputs.vpc_id
   subnet_ids               = data.terraform_remote_state.global.outputs.private_subnet_ids
   control_plane_subnet_ids = data.terraform_remote_state.global.outputs.private_subnet_ids
+
+  ###########################################
+  # ACCESS ENTRIES (Kubernetes RBAC Mappings)
+  ###########################################
   access_entries = {
+    # ------------------------------------
+    # ADMIN ACCESS FOR YOUR IAM USER
+    # ------------------------------------
     my_admin_user = {
-      principal_arn = "arn:aws:iam::677938781728:user/Arjun"
-
+      principal_arn     = "arn:aws:iam::677938781728:user/Arjun"
       kubernetes_groups = ["system:masters"]
-
-      type = "STANDARD"
+      type              = "STANDARD"
 
       policy_associations = {
         admin = {
@@ -52,14 +71,28 @@ module "eks" {
         }
       }
     }
+
+    # ------------------------------------
+    # NODE ACCESS (REQUIRED!)
+    # Without system:bootstrappers, nodes fail to join
+    # ------------------------------------
+    node_access = {
+      principal_arn = module.eks.eks_managed_node_groups["workernode"].iam_role_arn
+
+      kubernetes_groups = [
+        "system:bootstrappers",
+        "system:nodes"
+      ]
+
+      type = "EC2_LINUX"
+    }
   }
-  # EKS Managed Node Group
+
+  ###########################################
+  # EKS MANAGED NODE GROUP
+  ###########################################
   eks_managed_node_groups = {
-
-    # single workernode group with 1 desired EC2 instance
     workernode = {
-
-      # Starting on 1.30, AL2023 is the default AMI type for EKS managed node groups
       ami_type       = "AL2023_x86_64_STANDARD"
       instance_types = [var.instance_type]
 
@@ -69,12 +102,11 @@ module "eks" {
     }
   }
 
+  ###########################################
+  # TAGS
+  ###########################################
   tags = {
     Environment = var.env
     Terraform   = "true"
   }
 }
-
-
-
-
