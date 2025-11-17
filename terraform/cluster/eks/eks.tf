@@ -83,12 +83,12 @@ resource "aws_eks_access_policy_association" "local_admin_cluster_admin" {
 }
 
 # Github Action Role
-resource "aws_eks_access_entry" "github_actions" {
+/*resource "aws_eks_access_entry" "github_actions" {
   cluster_name  = module.eks.cluster_name
   principal_arn = "arn:aws:iam::677938781728:role/github-actions-iam-role"
   type          = "STANDARD"
   depends_on    = [module.eks]
-}
+}*/
 
 resource "aws_eks_access_policy_association" "github_actions_admin" {
   cluster_name  = module.eks.cluster_name

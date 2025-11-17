@@ -7,24 +7,31 @@ provider "aws" {
 # Waiting the cluster to be ready
 
 resource "null_resource" "wait_for_eks_api" {
-  depends_on = [module.eks]
+  depends_on = [
+    module.eks,
+    module.eks.module.eks_managed_node_group
+  ]
 
   provisioner "local-exec" {
     command = <<EOF
-    echo "...Waiting for EKS API endpoint to respond..."
-    for i in $(seq 1 30); do
-      if curl -s --connect-timeout 5 https://${module.eks.cluster_endpoint}/version >/dev/null 2>&1; then
-        echo "EKS API is reachable!"
-        exit 0
-      fi
-      echo "...Still waiting... ($i/30)"
-      sleep 10
-    done
-    echo "EKS API not reachable after 5 minutes"
-    exit 1
-    EOF
+echo "Waiting for EKS API endpoint to respond..."
+endpoint="${module.eks.cluster_endpoint}"
+
+for i in $(seq 1 30); do
+  if curl -s --connect-timeout 5 "$endpoint/version" >/dev/null 2>&1; then
+    echo "EKS API is reachable!"
+    exit 0
+  fi
+  echo "Still waiting... ($i/30)"
+  sleep 10
+done
+
+echo "EKS API NOT reachable after 5 minutes"
+exit 1
+EOF
   }
 }
+
 
 # Data sources for EKS cluster (ensure readiness)
 
