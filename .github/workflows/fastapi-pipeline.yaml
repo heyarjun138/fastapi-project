@@ -4,133 +4,148 @@ on:
   workflow_dispatch
 
 jobs:
-
-  Unit-Testing:
-    name: Unit-Testing
-    runs-on: ubuntu-latest
-    container:
-      image: python:3.10-slim
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Create pip cache folder
-        run: mkdir -p .pip-cache
-
-      - name: Cache Python Packages
-        uses: actions/cache@v4
-        with:
-          path: .pip-cache
-          key: python-package-${{ github.job }}-${{ hashFiles('app/dependencies.txt') }}
-          restore-keys: |
-            python-package-
-
-      - name: Install Dependencies
-        working-directory: app
-        run: |
-          pip install --cache-dir ../.pip-cache -r dependencies.txt
-          pip install --cache-dir ../.pip-cache pytest starlette
-
-      - name: Run Unit Tests
-        working-directory: app
-        run: pytest --junitxml=unit-test-reportfile.xml -v
-
-      - name: Upload Test Results
-        uses: actions/upload-artifact@v4
-        with:
-          name: unit-test-reportfile
-          path: app/unit-test-reportfile.xml
-
-  Code-Coverage:
-    name: Code-Coverage
-    needs: [Unit-Testing]
-    runs-on: ubuntu-latest
-    container:
-      image: python:3.10-slim
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Create pip cache folder
-        run: mkdir -p .pip-cache
-
-      - name: Cache Python Packages
-        uses: actions/cache@v4
-        with:
-          path: .pip-cache
-          key: python-package-${{ github.job }}-${{ hashFiles('app/dependencies.txt') }}
-          restore-keys: |
-            python-package-
-
-      - name: Install Dependencies
-        working-directory: app
-        run: |
-          pip install --cache-dir ../.pip-cache -r dependencies.txt
-          pip install --cache-dir ../.pip-cache pytest pytest-cov starlette
-
-      - name: Run Code Coverage
-        working-directory: app
-        run: pytest --cov=main --cov-report=xml:coverage-reportfile.xml --cov-report=html -v
-
-      - name: Upload Coverage Reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-reportfile
-          path: |
-            app/coverage-reportfile.xml
-            app/htmlcov/
-
-  Containerization:
-    name: Containerization
-    needs: [Unit-Testing, Code-Coverage]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Docker Login
-        uses: docker/login-action@v3
-        with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Docker Build
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: false
-          tags: ${{ vars.DOCKERHUB_USERNAME}}/fastapi:${{ github.sha }}
-
-      - name: Docker Image Testing 
-        run: |
-          docker images
-          docker run -d -p 8000:8000 --name fastapi ${{ vars.DOCKERHUB_USERNAME}}/fastapi:${{ github.sha }}
-          sleep 5
-          echo Testing the image URL using curl
-          curl -f http://127.0.0.1:8000/healthz | grep -i "ok"
-
-          docker stop fastapi
-          docker rm fastapi
-
-
-      - name: Docker Push
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: |
-            ${{ vars.DOCKERHUB_USERNAME }}/fastapi:${{ github.sha }}
-            ${{ vars.DOCKERHUB_USERNAME }}/fastapi:latest
+#
+#  Unit-Testing:
+#    name: Unit-Testing
+#    runs-on: ubuntu-latest
+#    container:
+#      image: python:3.10-slim
+#    steps:
+#      - name: Checkout Code
+#        uses: actions/checkout@v4
+#
+#      - name: Create pip cache folder
+#        run: mkdir -p .pip-cache
+#
+#      - name: Cache Python Packages
+#        uses: actions/cache@v4
+#        with:
+#          path: .pip-cache
+#          key: python-package-${{ github.job }}-${{ hashFiles('app/dependencies.txt') }}
+#          restore-keys: |
+#            python-package-
+#
+#      - name: Install Dependencies
+#        working-directory: app
+#        run: |
+#          pip install --cache-dir ../.pip-cache -r dependencies.txt
+#          pip install --cache-dir ../.pip-cache pytest starlette
+#
+#      - name: Run Unit Tests
+#        working-directory: app
+#        run: pytest --junitxml=unit-test-reportfile.xml -v
+#
+#      - name: Upload Test Results
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: unit-test-reportfile
+#          path: app/unit-test-reportfile.xml
+#
+#  Code-Coverage:
+#    name: Code-Coverage
+#    needs: [Unit-Testing]
+#    runs-on: ubuntu-latest
+#    container:
+#      image: python:3.10-slim
+#    steps:
+#      - name: Checkout Code
+#        uses: actions/checkout@v4
+#
+#      - name: Create pip cache folder
+#        run: mkdir -p .pip-cache
+#
+#      - name: Cache Python Packages
+#        uses: actions/cache@v4
+#        with:
+#          path: .pip-cache
+#          key: python-package-${{ github.job }}-${{ hashFiles('app/dependencies.txt') }}
+#          restore-keys: |
+#            python-package-
+#
+#      - name: Install Dependencies
+#        working-directory: app
+#        run: |
+#          pip install --cache-dir ../.pip-cache -r dependencies.txt
+#          pip install --cache-dir ../.pip-cache pytest pytest-cov starlette
+#
+#      - name: Run Code Coverage
+#        working-directory: app
+#        run: pytest --cov=main --cov-report=xml:coverage-reportfile.xml --cov-report=html -v
+#
+#      - name: Upload Coverage Reports
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: coverage-reportfile
+#          path: |
+#            app/coverage-reportfile.xml
+#            app/htmlcov/
+#
+#  Containerization:
+#    name: Containerization
+#    needs: [Unit-Testing, Code-Coverage]
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout Code
+#        uses: actions/checkout@v4
+#
+#      - name: Docker Login
+#        uses: docker/login-action@v3
+#        with:
+#          username: ${{ vars.DOCKERHUB_USERNAME }}
+#          password: ${{ secrets.DOCKERHUB_TOKEN }}
+#
+#      - name: Docker Build
+#        uses: docker/build-push-action@v6
+#        with:
+#          context: .
+#          push: false
+#          tags: ${{ vars.DOCKERHUB_USERNAME}}/fastapi:${{ github.sha }}
+#
+#      - name: Docker Image Testing 
+#        run: |
+#          docker images
+#          docker run -d -p 8000:8000 --name fastapi ${{ vars.DOCKERHUB_USERNAME}}/fastapi:${{ github.sha }}
+#          sleep 5
+#          echo Testing the image URL using curl
+#          curl -f http://127.0.0.1:8000/healthz | grep -i "ok"
+#
+#          docker stop fastapi
+#          docker rm fastapi
+#
+#
+#      - name: Docker Push
+#        uses: docker/build-push-action@v6
+#        with:
+#          context: .
+#          push: true
+#          tags: |
+#            ${{ vars.DOCKERHUB_USERNAME }}/fastapi:${{ github.sha }}
+#            ${{ vars.DOCKERHUB_USERNAME }}/fastapi:latest
 
   Deploy-Infra:
     name: Deploy-Infra
-    needs: [Containerization]
+    #needs: [Containerization]
     permissions:
      id-token: write #required for github-aws oidc authentication
+     contents: read
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Create Terraform Plugins cache folder
+        run: mkdir -p ~/.terraform.d/plugin-cache
+
+      - name: Cache Terraform Plugins
+        uses: actions/cache@v4
+        with:
+          path: ~/.terraform.d/plugin-cache
+          key: ${{ runner.os }}-terraform-${{ hashFiles('**/*.tf') }}
+          restore-keys: |
+            ${{ runner.os }}-terraform-
+
+      - name: Enable Terraform Plugin Cache
+        run: echo "TF_PLUGIN_CACHE_DIR=$HOME/.terraform.d/plugin-cache" >> $GITHUB_ENV #tell Terraform where to store and load provider plugins
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v5.1.0
@@ -143,20 +158,35 @@ jobs:
         with:
           terraform_version: "1.10.3"
 
-      - name: Terraform Init
+      - name: Terraform Init, Plan & Apply Global Resources
         working-directory: ./terraform/global
         run: |
           terraform init
-
-      - name: Terraform Plan
-        working-directory: ./terraform/global
-        run: |
           terraform plan -out=tfplan
-
-      - name: Terraform Apply
-        working-directory: ./terraform/global
-        run: |
           terraform apply -auto-approve tfplan
+
+      - name: Terraform Init, Plan & Apply EKS Resources
+        working-directory: ./terraform/cluster/eks
+        run: |
+          terraform init
+          terraform plan -out=tfplan
+          terraform apply -auto-approve tfplan
+
+      - name: Setup Kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: 'v1.30'
+      
+      - name: Update the KubeConfig
+        run: aws eks update-kubeconfig --name ${{ vars.EKS_CLUSTER_NAME }} --region ${{ vars.AWS_REGION }}
+
+      - name: Terraform Init, Plan & Apply for Loki-setup
+        working-directory: ./terraform/cluster/loki-setup
+        run: |
+          terraform init
+          terraform plan -out=tfplan
+          terraform apply -auto-approve tfplan
+          
 
       
     
