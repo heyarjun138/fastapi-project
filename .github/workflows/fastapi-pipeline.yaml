@@ -175,7 +175,7 @@ jobs:
       - name: Setup Kubectl
         uses: azure/setup-kubectl@v4
         with:
-          version: 'v1.30'
+          version: latest
       
       - name: Update the KubeConfig
         run: aws eks update-kubeconfig --name ${{ vars.EKS_CLUSTER_NAME }} --region ${{ vars.AWS_REGION }}
