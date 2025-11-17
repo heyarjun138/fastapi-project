@@ -162,30 +162,30 @@ jobs:
         working-directory: ./terraform/global
         run: |
           terraform init
-          terraform plan -out=tfplan
-          terraform apply -auto-approve tfplan
+          terraform destroy -auto-approve
 
       - name: Terraform Init, Plan & Apply EKS Resources
         working-directory: ./terraform/cluster/eks
         run: |
           terraform init
-          terraform plan -out=tfplan
-          terraform apply -auto-approve tfplan
-
-      - name: Setup Kubectl
-        uses: azure/setup-kubectl@v4
-        with:
-          version: latest
-      
-      - name: Update the KubeConfig
-        run: aws eks update-kubeconfig --name ${{ vars.EKS_CLUSTER_NAME }} --region ${{ vars.AWS_REGION }}
-
-      - name: Terraform Init, Plan & Apply for Loki-setup
-        working-directory: ./terraform/cluster/loki-setup
-        run: |
-          terraform init
-          terraform plan -out=tfplan
-          terraform apply -auto-approve tfplan
+          terraform destroy -auto-approve
+#          terraform plan -out=tfplan
+#          terraform apply -auto-approve tfplan
+#
+#      - name: Setup Kubectl
+#        uses: azure/setup-kubectl@v4
+#        with:
+#          version: latest
+#      
+#      - name: Update the KubeConfig
+#        run: aws eks update-kubeconfig --name ${{ vars.EKS_CLUSTER_NAME }} --region ${{ vars.AWS_REGION }}
+#
+#      - name: Terraform Init, Plan & Apply for Loki-setup
+#        working-directory: ./terraform/cluster/loki-setup
+#        run: |
+#          terraform init
+#          terraform plan -out=tfplan
+#          terraform apply -auto-approve tfplan
           
 
       
