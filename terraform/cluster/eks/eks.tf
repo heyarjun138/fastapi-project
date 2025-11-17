@@ -26,19 +26,33 @@ module "eks" {
   }
   endpoint_public_access       = true
   endpoint_private_access      = true
-  endpoint_public_access_cidrs = concat(
-   local.github_actions_ips,
-   ["49.37.178.76/32"]   # your github ips & home IP
-)
- # NEED TO CHANGE THE VALUE OF PUBLIC IP IN HERE
+  endpoint_public_access_cidrs = ["0.0.0.0/0"]   # your github ips & home IP
 
   # Adds the current caller identity as an administrator via cluster access entry
   enable_cluster_creator_admin_permissions = true
 
+
   vpc_id                   = data.terraform_remote_state.global.outputs.vpc_id
   subnet_ids               = data.terraform_remote_state.global.outputs.private_subnet_ids
   control_plane_subnet_ids = data.terraform_remote_state.global.outputs.private_subnet_ids
+  access_entries = {
+    my_admin_user = {
+      principal_arn = "arn:aws:iam::677938781728:user/Arjun"
 
+      kubernetes_groups = ["system:masters"]
+
+      type = "STANDARD"
+
+      policy_associations = {
+        admin = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+          access_scope = {
+            type = "cluster"
+          }
+        }
+      }
+    }
+  }
   # EKS Managed Node Group
   eks_managed_node_groups = {
 
@@ -60,3 +74,7 @@ module "eks" {
     Terraform   = "true"
   }
 }
+
+
+
+
