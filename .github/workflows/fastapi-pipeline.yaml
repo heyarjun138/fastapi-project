@@ -169,9 +169,9 @@ jobs:
         working-directory: ./terraform/cluster/eks
         run: |
           terraform init
-          
-          terraform plan -out=tfplan
-          terraform apply -auto-approve tfplan
+          terraform destroy -auto-approve
+#         terraform plan -out=tfplan
+#          terraform apply -auto-approve tfplan
 #
 #      - name: Setup Kubectl
 #        uses: azure/setup-kubectl@v4
