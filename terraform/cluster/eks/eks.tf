@@ -90,37 +90,7 @@ module "eks" {
         }
       }
     }
-
-    #########################################
-    # 3. WORKER NODE ACCESS (REQUIRED)
-    #########################################
-    node_access = {
-      # IMPORTANT: Use dynamic role ARN, no hardcoding!
-      principal_arn = module.eks.node_iam_role_arn
-
-      kubernetes_groups = [
-        "system:bootstrappers",
-        "system:nodes"
-      ]
-
-      type = "EC2_LINUX"
-    }
-  }
-
-  ###########################################
-  # EKS MANAGED NODE GROUP
-  ###########################################
-  eks_managed_node_groups = {
-    workernode = {
-      ami_type       = "AL2023_x86_64_STANDARD"
-      instance_types = [var.instance_type]
-
-      min_size     = var.min_count
-      max_size     = var.max_count
-      desired_size = var.desired_count
-    }
-  }
-
+  
   ###########################################
   # TAGS
   ###########################################
@@ -129,3 +99,21 @@ module "eks" {
     Terraform   = "true"
   }
 }
+}
+
+resource "aws_eks_access_entry" "node_access" {
+  cluster_name = module.eks.cluster_name
+
+  principal_arn = module.eks.node_iam_role_arn
+  type          = "EC2_LINUX"
+
+  kubernetes_groups = [
+    "system:bootstrappers",
+    "system:nodes",
+  ]
+
+  depends_on = [
+    module.eks
+  ]
+}
+
