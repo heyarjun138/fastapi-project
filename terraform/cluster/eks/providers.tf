@@ -7,10 +7,7 @@ provider "aws" {
 # Waiting the cluster to be ready
 
 resource "null_resource" "wait_for_eks_api" {
-  depends_on = [
-    module.eks,
-    module.eks.module.eks_managed_node_group
-  ]
+  depends_on = [module.eks]
 
   provisioner "local-exec" {
     command = <<EOF
