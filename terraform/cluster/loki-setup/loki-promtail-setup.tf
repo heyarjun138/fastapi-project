@@ -9,7 +9,7 @@ resource "kubernetes_secret" "loki_config_override" {
 
   data = {
     "loki.yaml" = templatefile("${path.module}/templates/loki_configmap.yaml", {
-      bucket_name   = aws_s3_bucket.loki_s3.bucket
+      bucket_name   = var.loki_s3_bucket_name
       bucket_region = var.aws_region
     })
   }
@@ -29,7 +29,7 @@ resource "null_resource" "restart_loki" {
   # Automatically trigger when loki.yaml template or S3 config changes
   triggers = {
     loki_config_hash = sha1(templatefile("${path.module}/templates/loki_configmap.yaml", {
-      bucket_name   = aws_s3_bucket.loki_s3.bucket
+      bucket_name   = var.loki_s3_bucket_name
       bucket_region = var.aws_region
     }))
   }
