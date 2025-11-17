@@ -1,0 +1,76 @@
+
+# Replace Loki Secret
+
+resource "kubernetes_secret" "loki_config_override" {
+  metadata {
+    name      = "loki-config" # Must match the SecretName in StatefulSet
+    namespace = var.loki_namespace
+  }
+
+  data = {
+    "loki.yaml" = templatefile("${path.module}/templates/loki_configmap.yaml", {
+      bucket_name   = aws_s3_bucket.loki_s3.bucket
+      bucket_region = var.aws_region
+    })
+  }
+
+  type = "Opaque"
+
+}
+
+
+# Restart Loki Statefulset after change
+
+resource "null_resource" "restart_loki" {
+  provisioner "local-exec" {
+    command = "kubectl rollout restart statefulset/loki -n ${var.loki_namespace}"
+  }
+
+  # Automatically trigger when loki.yaml template or S3 config changes
+  triggers = {
+    loki_config_hash = sha1(templatefile("${path.module}/templates/loki_configmap.yaml", {
+      bucket_name   = aws_s3_bucket.loki_s3.bucket
+      bucket_region = var.aws_region
+    }))
+  }
+
+  depends_on = [kubernetes_secret.loki_config_override]
+}
+
+
+# Replace Promatail ConfigMap
+
+resource "kubernetes_config_map" "promtail_config_override" {
+  metadata {
+    name      = "promtail-config"
+    namespace = var.loki_namespace
+  }
+
+  data = {
+    "promtail.yaml" = templatefile("${path.module}/templates/promtail_configmap.yaml", {
+      loki_url  = "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
+      tenant_id = "fastapi-production"   # new tenant ID
+    })
+  }
+
+  depends_on = [null_resource.restart_loki]
+}
+
+
+# Restart Promtail Daemonset after change
+
+resource "null_resource" "restart_promtail" {
+  provisioner "local-exec" {
+    command = <<EOT
+      echo "Waiting 90 seconds for Loki to be ready..."
+      sleep 90
+      echo "Restarting Promtail DaemonSet now..."
+      kubectl rollout restart daemonset/promtail -n ${var.loki_namespace}
+    EOT
+  }
+
+  depends_on = [
+    kubernetes_config_map.promtail_config_override,
+    null_resource.restart_loki
+  ]
+}
