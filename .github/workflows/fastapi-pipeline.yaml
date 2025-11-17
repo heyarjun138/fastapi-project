@@ -168,8 +168,8 @@ jobs:
       - name: Terraform Init, Plan & Apply EKS Resources
         working-directory: ./terraform/cluster/eks
         run: |
-          terraform force-unlock -force 4fbe0faa-8ed8-2c7a-d71f-fc10dad0e6e0
           terraform init
+          terraform force-unlock -force 4fbe0faa-8ed8-2c7a-d71f-fc10dad0e6e0
           terraform plan -out=tfplan
           terraform apply -auto-approve tfplan
 
