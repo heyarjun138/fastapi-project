@@ -162,7 +162,7 @@ jobs:
         working-directory: ./terraform/global
         run: |
           terraform init
-          terraform destroy -auto-approve
+          
 
       - name: Terraform Init, Plan & Apply EKS Resources
         working-directory: ./terraform/cluster/eks
