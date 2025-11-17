@@ -5,29 +5,36 @@ provider "aws" {
 }
 
 # Waiting the cluster to be ready
-
 resource "null_resource" "wait_for_eks_api" {
   depends_on = [module.eks]
 
   provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
+
     command = <<EOF
 echo "Waiting for EKS API endpoint to respond..."
 endpoint="${module.eks.cluster_endpoint}"
 
-for i in $(seq 1 30); do
-  if curl -s --connect-timeout 5 "$endpoint/version" >/dev/null 2>&1; then
-    echo "EKS API is reachable!"
-    exit 0
+for i in {1..60}; do
+  # Check using AWS CLI (more stable than curl)
+  if aws eks describe-cluster --name ${module.eks.cluster_name} --region ${var.aws_region} >/dev/null 2>&1; then
+    # Check if Kubernetes API server is responding
+    if curl -k -s "${endpoint}/healthz" | grep "ok" >/dev/null 2>&1; then
+      echo "EKS API is reachable!"
+      exit 0
+    fi
   fi
-  echo "Still waiting... ($i/30)"
+
+  echo "Still waiting... ($i/60)"
   sleep 10
 done
 
-echo "EKS API NOT reachable after 5 minutes"
+echo "EKS API NOT reachable after 10 minutes"
 exit 1
 EOF
   }
 }
+
 
 
 # Data sources for EKS cluster (ensure readiness)
