@@ -39,12 +39,6 @@ module "eks" {
   endpoint_public_access_cidrs = ["0.0.0.0/0"]   # allow laptop + GitHub runners
 
   ###########################################
-  # REMOVE THIS WHEN USING access_entries !!!
-  ###########################################
-  # enable_cluster_creator_admin_permissions = true
-  # (We disable this to avoid overwriting access_entries)
-
-  ###########################################
   # NETWORKING
   ###########################################
   vpc_id                   = data.terraform_remote_state.global.outputs.vpc_id
@@ -90,7 +84,22 @@ module "eks" {
         }
       }
     }
-  
+  }  # <-- THIS WAS MISSING (Closing access_entries block)
+
+  ###########################################
+  # EKS MANAGED NODE GROUP
+  ###########################################
+  eks_managed_node_groups = {
+    workernode = {
+      ami_type       = "AL2023_x86_64_STANDARD"
+      instance_types = [var.instance_type]
+
+      min_size     = var.min_count
+      max_size     = var.max_count
+      desired_size = var.desired_count
+    }
+  }
+
   ###########################################
   # TAGS
   ###########################################
@@ -99,11 +108,12 @@ module "eks" {
     Terraform   = "true"
   }
 }
-}
 
+#############################################
+# NODE ACCESS MUST BE OUTSIDE THE MODULE
+#############################################
 resource "aws_eks_access_entry" "node_access" {
-  cluster_name = module.eks.cluster_name
-
+  cluster_name  = module.eks.cluster_name
   principal_arn = module.eks.node_iam_role_arn
   type          = "EC2_LINUX"
 
@@ -116,4 +126,3 @@ resource "aws_eks_access_entry" "node_access" {
     module.eks
   ]
 }
-
