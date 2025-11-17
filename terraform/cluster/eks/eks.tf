@@ -113,9 +113,12 @@ module "eks" {
 # NODE ACCESS MUST BE OUTSIDE THE MODULE
 #############################################
 resource "aws_eks_access_entry" "node_access" {
-  cluster_name  = module.eks.cluster_name
-  principal_arn = module.eks.node_iam_role_arn
-  type          = "EC2_LINUX"
+  cluster_name = module.eks.cluster_name
+
+  # CORRECT OUTPUT FOR MODULE v21.4.0
+  principal_arn = module.eks.eks_managed_node_groups["workernode"].iam_role_arn
+
+  type = "EC2_LINUX"
 
   kubernetes_groups = [
     "system:bootstrappers",
@@ -126,3 +129,4 @@ resource "aws_eks_access_entry" "node_access" {
     module.eks
   ]
 }
+
