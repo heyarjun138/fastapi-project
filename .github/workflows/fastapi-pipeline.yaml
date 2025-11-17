@@ -168,7 +168,10 @@ jobs:
       - name: Terraform Init, Plan & Apply EKS Resources
         working-directory: ./terraform/cluster/eks
         run: |
-          terraform init 
+          rm -rf .terraform
+          rm -f .terraform.lock.hcl
+          terraform init -upgrade
+
           terraform plan -out=tfplan
           terraform apply -auto-approve tfplan
 
