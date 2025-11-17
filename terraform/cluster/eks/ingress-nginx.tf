@@ -1,5 +1,5 @@
 # Helm release to deploy NGINX Helm Chart
-
+/*
 resource "helm_release" "ingress_nginx" {
   name             = "ingress-nginx"
   repository       = "https://kubernetes.github.io/ingress-nginx"
@@ -30,3 +30,4 @@ resource "helm_release" "ingress_nginx" {
   depends_on = [null_resource.wait_for_eks_api, aws_iam_role.ingress_nginx_irsa_role]
 }
 
+*/
