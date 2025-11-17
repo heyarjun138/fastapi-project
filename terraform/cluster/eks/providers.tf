@@ -16,10 +16,11 @@ echo "Waiting for EKS API endpoint to respond..."
 endpoint="${module.eks.cluster_endpoint}"
 
 for i in {1..60}; do
-  # Check using AWS CLI (more stable than curl)
+  # Check cluster availability
   if aws eks describe-cluster --name ${module.eks.cluster_name} --region ${var.aws_region} >/dev/null 2>&1; then
-    # Check if Kubernetes API server is responding
-    if curl -k -s "${endpoint}/healthz" | grep "ok" >/dev/null 2>&1; then
+
+    # Check Kubernetes API health (escape Terraform interpolation!)
+    if curl -k -s "$${endpoint}/healthz" | grep "ok" >/dev/null 2>&1; then
       echo "EKS API is reachable!"
       exit 0
     fi
@@ -34,6 +35,7 @@ exit 1
 EOF
   }
 }
+
 
 
 
