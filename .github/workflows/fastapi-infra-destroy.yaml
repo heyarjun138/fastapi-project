@@ -44,20 +44,20 @@ jobs:
         with:
           terraform_version: "1.10.3"
       
-      - name: Update the KubeConfig
-        run: aws eks update-kubeconfig --name ${{ vars.EKS_CLUSTER_NAME }} --region ${{ vars.AWS_REGION }}
-
-      - name: Terraform Init, Destory for Loki-setup
-        working-directory: ./terraform/cluster/loki-setup
-        run: |
-          terraform init
-          terraform destroy -auto-approve
-      
-      - name: Terraform Init, Destory EKS Resources
-        working-directory: ./terraform/cluster/eks
-        run: |
-          terraform init
-          terraform destroy -auto-approve
+#      - name: Update the KubeConfig
+#        run: aws eks update-kubeconfig --name ${{ vars.EKS_CLUSTER_NAME }} --region ${{ vars.AWS_REGION }}
+#
+#      - name: Terraform Init, Destory for Loki-setup
+#        working-directory: ./terraform/cluster/loki-setup
+#        run: |
+#          terraform init
+#          terraform destroy -auto-approve
+#      
+#      - name: Terraform Init, Destory EKS Resources
+#        working-directory: ./terraform/cluster/eks
+#        run: |
+#          terraform init
+#          terraform destroy -auto-approve
 
       - name: Terraform Init, Destroy Global Resources
         working-directory: ./terraform/global
