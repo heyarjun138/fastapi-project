@@ -36,3 +36,9 @@ variable "loki_namespace" {
   default     = "monitoring"
   description = "Namespace where the loki chart will be deployed"
 }
+
+variable "eks_cluster_name" {
+  type = string
+  default = "my-cluster"
+  description = "EKS Cluster Name"
+}

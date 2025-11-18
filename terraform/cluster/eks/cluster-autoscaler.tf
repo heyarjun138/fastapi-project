@@ -2,7 +2,7 @@
 data "aws_region" "current" {} # provides details about a specific AWS Region
 
 # Helm release to deploy Cluster Autoscaler Helm Chart
-/*
+
 resource "helm_release" "cluster_autoscaler" {
   name       = "cluster-autoscaler"
   repository = "https://kubernetes.github.io/autoscaler"
@@ -28,4 +28,3 @@ resource "helm_release" "cluster_autoscaler" {
   ]
   depends_on = [null_resource.wait_for_eks_api, aws_iam_role.cluster_autoscaler]
 }
-*/
