@@ -1,0 +1,40 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: fastapi-ingress-resource
+  namespace: fastapi
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: a87c3a0b5909a44f6a1a9a2821c3373f-4c97fa5ae89a2f36.elb.us-east-1.amazonaws.com
+    http:
+      paths:
+      - path: /healthz
+        pathType: Prefix
+        backend:
+          service:
+            name: fastapi-service
+            port:
+              number: 8000
+      - path: /work
+        pathType: Prefix
+        backend:
+          service:
+            name: fastapi-service
+            port:
+              number: 8000
+      - path: /random
+        pathType: Prefix
+        backend:
+          service:
+            name: fastapi-service
+            port:
+              number: 8000
+      - path: /metrics
+        pathType: Prefix
+        backend:
+          service:
+            name: fastapi-service
+            port:
+              number: 8000
+      

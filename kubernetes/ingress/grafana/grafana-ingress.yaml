@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana-ingress
+  namespace: monitoring
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: a87c3a0b5909a44f6a1a9a2821c3373f-4c97fa5ae89a2f36.elb.us-east-1.amazonaws.com
+    http:
+      paths:
+      - path: /grafana
+        pathType: Prefix
+        backend:
+          service:
+            name: kube-prometheus-grafana
+            port:
+              number: 80

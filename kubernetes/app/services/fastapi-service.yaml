@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: fastapi-service
+  namespace: fastapi
+  labels:
+    app: fastapi
+spec:
+  selector:
+    app: fastapi
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8000        # service port Gateway will talk to
+      targetPort: 8000 # pod containerPort
+  type: ClusterIP      # internal service only

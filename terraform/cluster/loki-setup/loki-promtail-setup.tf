@@ -70,7 +70,7 @@ resource "kubernetes_config_map" "promtail_config_override" {
     })
   }
 
-  depends_on = [null_resource.restart_loki, null_resource.delete_old_promtail_configmap]
+  depends_on = [null_resource.delete_old_promtail_configmap]
 }
 
 
