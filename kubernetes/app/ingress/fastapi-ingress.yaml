@@ -6,7 +6,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: a87c3a0b5909a44f6a1a9a2821c3373f-4c97fa5ae89a2f36.elb.us-east-1.amazonaws.com
+  - host: {INGRESS_ADDRESS}
     http:
       paths:
       - path: /healthz

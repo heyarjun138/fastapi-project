@@ -215,6 +215,19 @@ jobs:
         run: |
           kubectl get nodes -o wide
 
+      - name: Fetch the NGINX Service Address
+        run: |
+          echo "INGRESS_ADDRESS=$(kubectl get service ingress-nginx-controller -n ingress-nginx -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')" >> $GITHUB_ENV
+      
+      - name: Replace Placeholder values
+        uses: cschleiden/replace-tokens@v1
+        with:
+          tokenPrefix: '{'
+          tokenSuffix: '}'
+          files: '["kubernetes/**/*.yaml"]'
+        env:
+          INGRESS_ADDRESS: ${{ env.INGRESS_ADDRESS }}
+
       - name: Setup Helm
         uses: azure/setup-helm@v4.3.0
         with:
@@ -226,7 +239,7 @@ jobs:
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
           helm repo update
           helm upgrade --install kube-prometheus prometheus-community/kube-prometheus-stack --namespace monitoring --values values.yaml
-        
+
       - name: Deploy Fastapi app
         working-directory: ./kubernetes/app
         run: |
