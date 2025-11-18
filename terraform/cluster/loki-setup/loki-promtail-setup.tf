@@ -1,4 +1,12 @@
 
+
+resource "null_resource" "delete_old_loki_secret" {
+  provisioner "local-exec" {
+    command = "kubectl delete secret loki-config -n ${var.loki_namespace} --ignore-not-found=true"
+  }
+}
+
+
 # Replace Loki Secret
 
 resource "kubernetes_secret" "loki_config_override" {
@@ -15,7 +23,7 @@ resource "kubernetes_secret" "loki_config_override" {
   }
 
   type = "Opaque"
-
+depends_on = [null_resource.delete_old_loki_secret]
 }
 
 
@@ -38,6 +46,15 @@ resource "null_resource" "restart_loki" {
 }
 
 
+resource "null_resource" "delete_old_promtail_configmap" {
+  provisioner "local-exec" {
+    command = "kubectl delete configmap promtail-config -n ${var.loki_namespace} --ignore-not-found=true"
+  }
+
+  depends_on = [null_resource.restart_loki]
+}
+
+
 # Replace Promatail ConfigMap
 
 resource "kubernetes_config_map" "promtail_config_override" {
@@ -53,7 +70,7 @@ resource "kubernetes_config_map" "promtail_config_override" {
     })
   }
 
-  depends_on = [null_resource.restart_loki]
+  depends_on = [null_resource.restart_loki, null_resource.delete_old_promtail_configmap]
 }
 
 
