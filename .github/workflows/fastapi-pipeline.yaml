@@ -228,6 +228,12 @@ jobs:
         env:
           INGRESS_ADDRESS: ${{ env.INGRESS_ADDRESS }}
 
+      - name: Debug values.yaml
+        run: |
+          echo "--- RAW FILE CONTENT START ---"
+          sed -n 'l' kubernetes/helm/kube-prometheus-stack/values.yaml
+          echo "--- RAW FILE CONTENT END ---"
+
       - name: Setup Helm
         uses: azure/setup-helm@v4.3.0
         with:
