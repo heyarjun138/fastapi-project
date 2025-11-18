@@ -215,31 +215,31 @@ jobs:
         run: |
           kubectl get nodes -o wide
 
-#      - name: Setup Helm
-#        uses: azure/setup-helm@v4.3.0
-#        with:
-#          version: latest
-#
-#      - name: Deploy Prometheus Stack
-#        working-directory: ./kubernetes/helm/kube-prometheus-stack
-#        run: |
-#          helm upgrade --install kube-prometheus prometheus-community/kube-prometheus-stack --namespace monitoring --values values.yaml
-#        
-#      - name: Deploy Fastapi app
-#        working-directory: ./kubernetes/app
-#        run: |
-#          kubectl apply -Rf namespace/
-#          kubectl apply -Rf secret/
-#          kubectl apply -Rf deployment/
-#          kubectl apply -Rf service/
-#          kubectl apply -Rf hpa/
-#          kubectl apply -Rf monitoring/
-#          kubectl apply -Rf ingress/
-#          
-#      - name: Deploy Grafana Ingress
-#        working-directory: ./kubernetes/ingress/grafana
-#        run: |
-#          kubectl apply -f grafana-ingress.yaml
+      - name: Setup Helm
+        uses: azure/setup-helm@v4.3.0
+        with:
+          version: latest
+
+      - name: Deploy Prometheus Stack
+        working-directory: ./kubernetes/helm/kube-prometheus-stack
+        run: |
+          helm upgrade --install kube-prometheus prometheus-community/kube-prometheus-stack --namespace monitoring --values values.yaml
+        
+      - name: Deploy Fastapi app
+        working-directory: ./kubernetes/app
+        run: |
+          kubectl apply -Rf namespace/
+          kubectl apply -Rf secret/
+          kubectl apply -Rf deployment/
+          kubectl apply -Rf service/
+          kubectl apply -Rf hpa/
+          kubectl apply -Rf monitoring/
+          kubectl apply -Rf ingress/
+          
+      - name: Deploy Grafana Ingress
+        working-directory: ./kubernetes/ingress/grafana
+        run: |
+          kubectl apply -f grafana-ingress.yaml
 
       
     
