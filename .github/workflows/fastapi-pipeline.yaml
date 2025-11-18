@@ -223,6 +223,8 @@ jobs:
       - name: Deploy Prometheus Stack
         working-directory: ./kubernetes/helm/kube-prometheus-stack
         run: |
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
           helm upgrade --install kube-prometheus prometheus-community/kube-prometheus-stack --namespace monitoring --values values.yaml
         
       - name: Deploy Fastapi app
