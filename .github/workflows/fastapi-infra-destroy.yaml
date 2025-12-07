@@ -53,11 +53,11 @@ jobs:
 #          terraform init
 #          terraform destroy -auto-approve
 #      
-#      - name: Terraform Init, Destory EKS Resources
-#        working-directory: ./terraform/cluster/eks
-#        run: |
-#          terraform init
-#          terraform destroy -auto-approve
+      - name: Terraform Init, Destory EKS Resources
+        working-directory: ./terraform/cluster/eks
+        run: |
+          terraform init
+          terraform destroy -auto-approve
 
       - name: Terraform Init, Destroy Global Resources
         working-directory: ./terraform/global
