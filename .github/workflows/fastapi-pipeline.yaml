@@ -123,7 +123,7 @@ jobs:
             ${{ vars.DOCKERHUB_USERNAME }}/fastapi:latest
   Deploy-Infra:
     name: Deploy-Infra
-    #needs: [Containerization]
+    needs: [Containerization]
     permissions:
      id-token: write #required for github-aws oidc authentication
      contents: read
