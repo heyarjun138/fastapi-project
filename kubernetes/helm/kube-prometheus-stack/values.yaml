@@ -1231,6 +1231,8 @@ grafana:
       domain: "{INGRESS_ADDRESS}"
       root_url: "%(protocol)s://%(domain)s/grafana"
       serve_from_sub_path: true
+
+  
   ## ForceDeployDatasources Create datasource configmap even if grafana deployment has been disabled
   ##
   forceDeployDatasources: false
@@ -1453,20 +1455,19 @@ grafana:
 
   ## Configure additional grafana datasources (passed through tpl)
   ## ref: https://grafana.com/docs/grafana/latest/administration/provisioning/#datasources
-  additionalDataSources: []
-  # - name: prometheus-sample
-  #   access: proxy
-  #   basicAuth: true
-  #   secureJsonData:
-  #       basicAuthPassword: pass
-  #   basicAuthUser: daco
-  #   editable: false
-  #   jsonData:
-  #       tlsSkipVerify: true
-  #   orgId: 1
-  #   type: prometheus
-  #   url: https://{{ printf "%s-prometheus.svc" .Release.Name }}:9090
-  #   version: 1
+  # Add this block to provision Loki datasource with tenant header
+  # additionalDataSources: []
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      access: proxy
+      url: http://loki.monitoring.svc.cluster.local:3100
+      isDefault: false
+      jsonData:
+        maxLines: 1000
+        httpHeaderName1: "X-Scope-OrgID"
+      secureJsonData:
+        httpHeaderValue1: "fastapi-production"
 
   # Flag to mark provisioned data sources for deletion if they are no longer configured.
   # It takes no effect if data sources are already listed in the deleteDatasources section.
