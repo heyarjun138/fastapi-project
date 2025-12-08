@@ -36,7 +36,7 @@ storage_config:
     active_index_directory: /data/loki/boltdb-shipper-active
     cache_location: /data/loki/boltdb-shipper-cache
     cache_ttl: 24h
-    shared_store: s3
+    shared_store: aws
   aws:
     s3: s3://${bucket_region}/${bucket_name}
 table_manager:
