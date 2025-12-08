@@ -147,7 +147,7 @@ resource "kubernetes_config_map" "grafana_loki_datasource" {
             jsonData:
               httpHeaderName1: "X-Scope-OrgID"
             secureJsonData:
-              httpHeaderValue1: "production"
+              httpHeaderValue1: "fastapi-production"
         EOF      
   }
   depends_on = [null_resource.wait_for_eks_api, kubernetes_namespace.monitoring, module.loki-stack]

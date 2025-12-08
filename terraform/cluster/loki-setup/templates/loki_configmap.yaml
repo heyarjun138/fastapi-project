@@ -38,7 +38,7 @@ storage_config:
     cache_ttl: 24h
     shared_store: s3
   aws:
-    s3: s3://${bucket_region}/${bucket_name}/fastapi-production
+    s3: s3://${bucket_region}/${bucket_name}
 table_manager:
   retention_deletes_enabled: false
   retention_period: 0s
