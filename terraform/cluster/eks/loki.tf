@@ -19,6 +19,8 @@ module "loki-stack" {
   #  Add this override
   loki_docker_image = "grafana/loki:2.9.3"
 
+  promtail_docker_image = "grafana/promtail:2.9.3"
+
   #Storage details
   s3_name   = aws_s3_bucket.loki_s3.bucket
   s3_region = var.aws_region
