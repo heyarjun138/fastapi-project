@@ -7,8 +7,6 @@ positions:
 clients:
   - url: ${loki_url}
     tenant_id: ${tenant_id}
-    headers:
-      X-Scope-OrgID: ${tenant_id}
     backoff_config:
       max_period: 5m
       max_retries: 10
