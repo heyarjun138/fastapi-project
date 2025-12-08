@@ -26,7 +26,7 @@ schema_config:
       index:
         period: 24h
         prefix: loki_index_
-      object_store: aws
+      object_store: s3
       schema: v11
       store: boltdb-shipper
 server:
