@@ -73,6 +73,34 @@ resource "kubernetes_config_map" "promtail_config_override" {
   depends_on = [null_resource.delete_old_promtail_configmap]
 }
 
+# Patch Promtail DaemonSet args to remove CLI client arg (so it uses the Config file only)
+resource "null_resource" "fix_promtail_args" {
+  provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
+    command     = <<-EOF
+      set -euo pipefail
+
+      echo "Patching promtail daemonset args to use only -config.file..."
+      kubectl -n ${var.loki_namespace} patch daemonset promtail \
+        --type='json' \
+        -p='[{"op":"replace","path":"/spec/template/spec/containers/0/args","value":["-config.file=/etc/promtail/promtail.yaml"]}]'
+
+      echo "Patched promtail args."
+    EOF
+  }
+
+  # triggers: re-run when the promtail config template changes or Loki release changes
+  triggers = {
+    promtail_config_hash = sha1(templatefile("${path.module}/templates/promtail_configmap.yaml", {
+      loki_url  = "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
+      tenant_id = "fastapi-production"
+    }))
+  }
+
+  # must run after promtail configmap is created
+  depends_on = [kubernetes_config_map.promtail_config_override]
+
+}
 
 # Restart Promtail Daemonset after change
 
@@ -88,6 +116,7 @@ resource "null_resource" "restart_promtail" {
 
   depends_on = [
     kubernetes_config_map.promtail_config_override,
-    null_resource.restart_loki
+    null_resource.restart_loki,
+    null_resource.fix_promtail_args
   ]
 }

@@ -25,7 +25,7 @@ module "loki-stack" {
   s3_name   = aws_s3_bucket.loki_s3.bucket
   s3_region = var.aws_region
   namespace = kubernetes_namespace.monitoring.metadata[0].name
-
+  
   #for IRSA
   loki_service_account_annotations = {
     "eks.amazonaws.com/role-arn" = aws_iam_role.loki_irsa_role.arn
@@ -34,6 +34,26 @@ module "loki-stack" {
 
   depends_on = [null_resource.wait_for_eks_api, aws_s3_bucket.loki_s3, aws_iam_role.loki_irsa_role, kubernetes_namespace.monitoring]
 }
+
+
+resource "null_resource" "fix_promtail_args" {
+  provisioner "local-exec" {
+
+    interpreter = ["/bin/bash", "-c"]
+
+    command = <<-EOF
+    set -euo pipefail
+kubectl -n monitoring patch daemonset promtail \
+  --type='json' \
+  -p='[{"op":"replace","path":"/spec/template/spec/containers/0/args","value":["-config.file=/etc/promtail/promtail.yaml"]}]'
+
+kubectl -n monitoring rollout restart daemonset promtail
+EOF
+  }
+
+  depends_on = [helm_release.loki_stack]
+}
+
 
 /*
 resource "null_resource" "delete_old_loki_secret" {
