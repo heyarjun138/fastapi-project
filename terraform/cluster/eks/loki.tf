@@ -36,24 +36,6 @@ module "loki-stack" {
 }
 
 
-resource "null_resource" "fix_promtail_args" {
-  provisioner "local-exec" {
-
-    interpreter = ["/bin/bash", "-c"]
-
-    command = <<-EOF
-    set -euo pipefail
-kubectl -n monitoring patch daemonset promtail \
-  --type='json' \
-  -p='[{"op":"replace","path":"/spec/template/spec/containers/0/args","value":["-config.file=/etc/promtail/promtail.yaml"]}]'
-
-kubectl -n monitoring rollout restart daemonset promtail
-EOF
-  }
-
-  depends_on = [helm_release.loki_stack]
-}
-
 
 /*
 resource "null_resource" "delete_old_loki_secret" {
