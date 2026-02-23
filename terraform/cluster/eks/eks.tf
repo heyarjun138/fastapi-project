@@ -65,16 +65,17 @@ module "eks" {
 }
 
 # Admin user
+/*
 resource "aws_eks_access_entry" "local_admin" {
   cluster_name  = module.eks.cluster_name
   principal_arn = "arn:aws:iam::677938781728:user/Arjun"
   type          = "STANDARD"
   depends_on    = [module.eks]
-}
+}*/
 
 resource "aws_eks_access_policy_association" "local_admin_cluster_admin" {
   cluster_name  = module.eks.cluster_name
-  principal_arn = aws_eks_access_entry.local_admin.principal_arn
+  principal_arn = "arn:aws:iam::677938781728:user/Arjun"
   policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
 
   access_scope {
