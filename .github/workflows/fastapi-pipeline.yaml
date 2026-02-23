@@ -188,7 +188,7 @@ jobs:
   K8s-Deploy:
     name: K8s-Deploy
     environment:
-      name: fastapi
+      name: Production
       url: "http://${{ env.INGRESS_ADDRESS }}/random"
     needs: [Deploy-Infra]
     permissions:
