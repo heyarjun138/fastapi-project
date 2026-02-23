@@ -1,4 +1,4 @@
-# FastAPI Platform on AWS EKS
+# FastAPI Application on AWS-EKS
 
 A cloud-native FastAPI microservice deployed on Amazon EKS using
 Terraform for infrastructure provisioning and Helm for Kubernetes
@@ -19,8 +19,7 @@ The platform includes:
 -   Horizontal Pod Autoscaler (HPA)
 -   GitHub Actions CI/CD pipeline
 -   Prometheus & Grafana monitoring stack
--   Loki + Promtail for log aggregation
--   Amazon S3 as log storage backend
+-   Loki for log aggregation with AWS S3 as storage backend
 -   IRSA for secure AWS access from pods
 
 ------------------------------------------------------------------------
@@ -38,7 +37,6 @@ The platform includes:
     -   ingress-nginx
     -   kube-prometheus-stack
     -   Loki
-    -   Promtail
     -   Cluster Autoscaler
 
 ### Application Layer
@@ -68,8 +66,9 @@ GitHub Actions workflows automate:
 
 -   Docker image build
 -   Image push to registry
--   Application deployment updates
--   Infrastructure destroy workflow
+-   Infrastructure deployment 
+-   Application deployment 
+
 
 ------------------------------------------------------------------------
 
