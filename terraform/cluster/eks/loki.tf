@@ -87,4 +87,3 @@ resource "kubernetes_config_map" "grafana_loki_datasource" {
   #depends_on = [null_resource.wait_for_eks_api, kubernetes_namespace.monitoring, module.loki-stack]
   depends_on = [null_resource.wait_for_eks_api, kubernetes_namespace.monitoring, helm_release.loki_stack]
 }
-
