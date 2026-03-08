@@ -33,7 +33,7 @@ module "eks" {
   }
   endpoint_public_access       = true
   endpoint_private_access      = true
-  endpoint_public_access_cidrs = ["0.0.0.0/0"] # NEED TO CHANGE THE VALUE OF PUBLIC IP IN HERE
+  endpoint_public_access_cidrs = ["0.0.0.0/0"]
 
   # Adds the current caller identity as an administrator via cluster access entry
   enable_cluster_creator_admin_permissions = true
@@ -55,6 +55,11 @@ module "eks" {
       min_size     = var.min_count
       max_size     = var.max_count
       desired_size = var.desired_count
+      
+      tags = {
+      "k8s.io/cluster-autoscaler/enabled"                 = "true"
+      "k8s.io/cluster-autoscaler/${var.cluster_name}"     = "owned"
+    }
     }
   }
 

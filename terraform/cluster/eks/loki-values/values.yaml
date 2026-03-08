@@ -1,0 +1,48 @@
+test_pod:
+  enabled: true
+
+loki:
+  enabled: true
+  isDefault: true
+
+  serviceAccount:
+    create: false
+    name: loki
+    annotations:
+      eks.amazonaws.com/role-arn: ${iam_role_arn}
+
+  config:
+    auth_enabled: true
+
+    schema_config:
+      configs:
+        - from: 2024-01-01
+          store: tsdb
+          object_store: s3
+          schema: v13
+          index:
+            prefix: loki_index_
+            period: 24h
+
+    storage_config:
+      aws:
+        s3: s3://${loki_bucket}
+        region: ${aws_region}
+
+    compactor:
+      working_directory: /var/loki/compactor
+      shared_store: s3
+
+promtail:
+  enabled: true
+
+  config:
+    clients:
+      - url: http://{{ .Release.Name }}:3100/loki/api/v1/push
+        tenant_id: ${tenant_id}
+
+grafana:
+  enabled: false
+
+prometheus:
+  enabled: false

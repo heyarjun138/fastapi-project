@@ -163,6 +163,7 @@ jobs:
           terraform init
           terraform plan -out=tfplan
           terraform apply -auto-approve tfplan
+          
       - name: Terraform Init, Plan & Apply EKS Resources
         working-directory: ./terraform/cluster/eks
         run: |
@@ -178,12 +179,12 @@ jobs:
       - name: Update the KubeConfig
         run: aws eks update-kubeconfig --name ${{ vars.EKS_CLUSTER_NAME }} --region ${{ vars.AWS_REGION }}
 
-      - name: Terraform Init, Plan & Apply for Loki-setup
-        working-directory: ./terraform/cluster/loki-setup
-        run: |
-          terraform init
-          terraform plan -out=tfplan
-          terraform apply -auto-approve tfplan
+     # - name: Terraform Init, Plan & Apply for Loki-setup
+     #   working-directory: ./terraform/cluster/loki-setup
+     #   run: |
+     #     terraform init
+     #     terraform plan -out=tfplan
+     #     terraform apply -auto-approve tfplan
   
   K8s-Deploy:
     name: K8s-Deploy

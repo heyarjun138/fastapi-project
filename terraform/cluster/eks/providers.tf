@@ -39,12 +39,14 @@ EOF
 
 
 
-# Data sources for EKS cluster (ensure readiness)
+# Data source fetches cluster metadata from AWS.
 
 data "aws_eks_cluster" "cluster" {
   name       = module.eks.cluster_name
   depends_on = [module.eks, null_resource.wait_for_eks_api]
 }
+
+# Data source generates a temporary authentication token for the EKS cluster
 
 data "aws_eks_cluster_auth" "cluster" {
   name       = module.eks.cluster_name
@@ -67,7 +69,7 @@ provider "kubernetes" {
 # Configure the Helm Provider
 
 provider "helm" {
-  kubernetes {
+  kubernetes = {
     host                   = data.aws_eks_cluster.cluster.endpoint
     cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
     token                  = data.aws_eks_cluster_auth.cluster.token
