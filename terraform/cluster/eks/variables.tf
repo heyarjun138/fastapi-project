@@ -91,7 +91,7 @@ variable "desired_count" {
 
 variable "max_count" {
   type        = number
-  default     = 3
+  default     = 4
   description = "Maximum number of nodes"
 }
 
