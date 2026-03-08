@@ -25,7 +25,7 @@ loki:
         - from: 2024-01-01
           store: tsdb
           object_store: s3
-          schema: v13
+          schema: v12
           index:
             prefix: loki_index_
             period: 24h
