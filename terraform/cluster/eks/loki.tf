@@ -49,6 +49,7 @@ resource "helm_release" "loki_stack" {
       loki_bucket  = aws_s3_bucket.loki_s3.bucket
       aws_region   = var.aws_region
       tenant_id    = "fastapi-production"
+      loki_url     = "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
       iam_role_arn = aws_iam_role.loki_irsa_role.arn
     })
   ]
