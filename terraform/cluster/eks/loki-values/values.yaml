@@ -3,7 +3,7 @@ test_pod:
 
 loki:
   enabled: true
-  isDefault: true
+  isDefault: false
 
   serviceAccount:
     create: true
