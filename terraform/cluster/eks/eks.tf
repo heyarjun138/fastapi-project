@@ -129,7 +129,7 @@ resource "aws_eks_access_entry" "github_actions" {
 
 resource "aws_eks_access_policy_association" "github_actions_admin" {
   cluster_name  = module.eks.cluster_name
-  principal_arn = "arn:aws:iam::677938781728:role/github-actions-iam-role"
+  principal_arn = "arn:aws:iam::461451174113:role/github-actions-iam-role"
   policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
 
   access_scope {
