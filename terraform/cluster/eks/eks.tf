@@ -70,7 +70,7 @@ module "eks" {
   access_entries = {
 
     local_admin = {
-      principal_arn = "arn:aws:iam::677938781728:user/Arjun"
+      principal_arn = "arn:aws:iam::461451174113:user/Arjun"
 
       policy_associations = {
         cluster_admin = {
